@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# XIE-CSI website
 
-## Getting Started
+The public homepage for the CSI Student Chapter at Xavier Institute of Engineering, Mumbai.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build && npm run start   # production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where things live
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| What | File |
+| --- | --- |
+| Upcoming events (DSA Workshop), RepoForge copy | `src/content/events.ts` |
+| Committee 2026–27 | `src/content/team.ts` |
+| Hero copy, nav, photo slots and alt text, About, Contact, Member Login link | `src/content/site.ts` |
+| Logos | `public/brand/xie-logo.(svg/png/webp)` and `public/brand/csi-logo.(svg/png/webp)` |
+| Placeholder photos | `public/events/placeholders/` |
+| Colours, type, motion | `src/app/globals.css` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Common edits
 
-## Learn More
+- **Logos:** drop the official files into `public/brand/` with the names above. They show up automatically at their original proportions. Until then the header shows a text lockup.
+- **Registration:** set `registrationUrl` in `src/content/events.ts`. A Register button appears.
+- **Member Login:** the header and mobile menu link to `/login` (`memberLoginHref` in `src/content/site.ts`; set it to `null` to show "Coming soon").
+- **Real photos:** replace the files in `public/events/placeholders/` (or point `src` somewhere new), update `alt`, set `credit` to `null`, and set `photosAreReal: true` in `events.ts`. Frames keep a fixed aspect ratio, and `focus` moves the crop.
+- **Contact:** fill in `email`, `instagram` and `linkedin` in `site.ts`. Empty values stay hidden.
 
-To learn more about Next.js, take a look at the following resources:
+Calendar files are generated at `/events/<slug>.ics` from the event data.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Member sign-in (Supabase)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Members sign in with a one-time email link. Access is invite-only: the app never creates
+accounts, and only people with an `active` row in `public.members` can open `/dashboard`.
 
-## Deploy on Vercel
+| Route | What it does |
+| --- | --- |
+| `/login` | Sends a sign-in link to invited members |
+| `/auth/confirm` | Email link callback: creates the session, then sends active members to `/dashboard` |
+| `/dashboard` | Member dashboard; checks session and membership on the server |
+| `/preview/login`, `/preview/dashboard` | Design previews with simulated states (no real sign-in) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### One-time setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create a Supabase project. In **Project Settings → API**, copy the project URL, the
+   publishable (anon) key and the secret (service_role) key into `.env.local`, using the
+   names in [.env.example](.env.example).
+2. **SQL editor:** run [supabase/migrations/0001_members.sql](supabase/migrations/0001_members.sql).
+3. **Authentication → Sign In / Providers → Email:** keep Email enabled and turn **off**
+   "Allow new users to sign up".
+4. **Authentication → URL Configuration:**
+   - Site URL: `http://localhost:3000` (your real domain in production)
+   - Redirect URLs: add `http://localhost:3000/auth/confirm`
+5. **Authentication → Email Templates → Magic Link:** replace the link with
+   ```html
+   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Sign in to XIE-CSI</a>
+   ```
+   This lets members open the link on any device. (The default template also works, but
+   only in the same browser that requested the link.)
+6. Restart `npm run dev` so the new environment variables load.
+
+### Inviting a member
+
+```bash
+node --env-file=.env.local scripts/invite-member.mjs <college-email>
+```
+
+This creates the account and an active membership row. No email is sent; the member then
+signs in at `/login`. To remove access, set their `status` to `inactive` in the
+`members` table (Table editor).

@@ -1,26 +1,363 @@
 @import "tailwindcss";
 
+/* Palette: warm paper, near-black ink, one accent sampled from the CSI seal's blue. */
+@theme {
+  --color-paper: #f3f0e8;
+  --color-paper-deep: #e9e4d8;
+  --color-ink: #141311;
+  --color-ink-soft: #4a4640;
+  --color-rule: rgb(20 19 17 / 0.16);
+  --color-accent: #0a3a9e;
+  --color-accent-ink: #072c7a;
+  --color-accent-light: #8fb0f5;
+  --color-night: #141311;
+  --color-night-soft: #a7a196;
+  --color-night-rule: rgb(243 240 232 / 0.18);
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Page gutter that also centres content beyond a 1360px measure. */
+  --gutter: max(1rem, calc((100vw - 1360px) / 2));
+  --header-h: 4rem;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (min-width: 768px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: max(2rem, calc((100vw - 1360px) / 2));
+    --header-h: 4.5rem;
+  }
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.on-night :focus-visible {
+  outline-color: var(--color-accent-light);
+}
+
+@utility px-gutter {
+  padding-inline: var(--gutter);
+}
+
+@utility wdth-expanded {
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+}
+
+/* Text links: underline that thickens and shifts toward ink on hover. */
+.link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: currentColor;
+  transition:
+    text-decoration-thickness 160ms var(--ease-out-expo),
+    text-underline-offset 160ms var(--ease-out-expo),
+    color 160ms ease;
+}
+.link:hover {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* Header nav: an underline draws in from the left. */
+.nav-link {
+  background: linear-gradient(currentColor, currentColor) no-repeat 0.625rem calc(100% - 0.6rem) / 0 1px;
+  transition: background-size 320ms var(--ease-out-expo);
+}
+.nav-link:hover,
+.nav-link:focus-visible {
+  background-size: calc(100% - 1.25rem) 1px;
+}
+
+/* Primary button: an accent fill rises from the bottom edge. */
+.btn-primary {
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 100% 0;
+  transition: background-size 380ms var(--ease-out-expo);
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background-size: 100% 100%;
+}
+
+/* Hero "Next up" line: the rule darkens on hover. */
+.next-up {
+  transition: border-color 240ms ease;
+}
+.next-up:hover {
+  border-color: var(--color-ink);
+}
+
+/* RepoForge photos: muted at rest, full colour on hover. */
+.rf-photo {
+  filter: grayscale(0.85) contrast(1.05);
+  transition: filter 600ms var(--ease-out-expo);
+}
+figure:hover > .rf-photo {
+  filter: none;
+}
+
+/* Arrow nudges right on hover of its parent link or button. */
+.nudge > .arrow {
+  transition: transform 220ms var(--ease-out-expo);
+}
+.nudge:hover > .arrow,
+.nudge:focus-visible > .arrow {
+  transform: translateX(0.25em);
+}
+.nudge-down:hover > .arrow,
+.nudge-down:focus-visible > .arrow {
+  transform: translateY(0.2em);
+}
+
+/* ---------- Motion ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Hero headline: words rise in from a mask, 60ms apart. */
+  .rise-word {
+    display: inline-block;
+    animation: rise 760ms var(--ease-out-expo) both;
+    animation-delay: calc(80ms + var(--i, 0) * 60ms);
+  }
+  .fade-in {
+    animation: fade 700ms var(--ease-out-expo) both;
+    animation-delay: var(--d, 320ms);
+  }
+  /* Hero photo: clipped reveal from the left edge, with a slight settle in scale. */
+  .reveal-photo {
+    animation: wipe 1100ms var(--ease-out-expo) both;
+    animation-delay: 160ms;
+  }
+  .reveal-photo > img {
+    animation: settle 1400ms var(--ease-out-expo) both;
+    animation-delay: 160ms;
+  }
+
+  /* RepoForge: scroll-linked sequence where supported; otherwise everything is simply visible. */
+  @supports (animation-timeline: view()) {
+    .rf-lead {
+      animation: rf-open linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 50%;
+    }
+    .rf-support {
+      animation: rf-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+    .rf-support-late {
+      animation-range: entry 25% cover 50%;
+    }
+  }
+
+  /* Mobile menu links settle in one after another. */
+  .menu-panel[data-open="true"] .menu-item {
+    animation: fade 420ms var(--ease-out-expo) both;
+    animation-delay: calc(40ms + var(--i, 0) * 35ms);
+  }
+}
+
+.menu-scrim {
+  transition:
+    opacity 260ms ease,
+    visibility 0s linear 260ms;
+}
+.menu-scrim[data-open="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.menu-scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(0.6em);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes wipe {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes rf-open {
+  from {
+    clip-path: inset(8% var(--gutter) 8% var(--gutter));
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes rf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Mobile menu panel. */
+.menu-panel {
+  transition:
+    opacity 200ms ease,
+    transform 260ms var(--ease-out-expo),
+    visibility 0s linear 260ms;
+}
+.menu-panel[data-open="false"] {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+}
+.menu-panel[data-open="true"] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel {
+    transition: opacity 150ms ease, visibility 0s linear 150ms;
+  }
+  .menu-panel[data-open="false"] {
+    transform: none;
+  }
+}
+
+/* Committee poster thumbnails: a hairline frame tightens on hover. */
+.poster-thumb {
+  outline: 1px solid var(--color-rule);
+  outline-offset: 0;
+  transition: outline-color 200ms ease, transform 300ms var(--ease-out-expo);
+}
+.poster-thumb:hover {
+  outline-color: var(--color-ink);
+  transform: translateY(-2px);
+}
+.poster-thumb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Member portal ---------- */
+
+@theme {
+  --color-danger: #a1261b;
+}
+
+.field-error {
+  color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spinner {
+    animation: spin 800ms linear infinite;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Boxed email field for the portal: the focal control, ruled like the page. */
+.field-box {
+  border-color: rgb(20 19 17 / 0.55);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.field-box:hover {
+  border-color: var(--color-ink);
+}
+.field-box:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+.field-box[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 1px var(--color-danger);
+}
+.field-box:read-only:not(:focus) {
+  color: var(--color-ink-soft);
+}
+
+/* Back link: arrow nudges left on hover. */
+.nudge-back > .arrow {
+  transition: transform 220ms var(--ease-out-expo);
+}
+.nudge-back:hover > .arrow {
+  transform: rotate(180deg) translateX(0.25em);
 }
