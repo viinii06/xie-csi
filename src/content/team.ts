@@ -70,7 +70,7 @@ export const teams: Team[] = [
     members: [
       { name: "Akanksha Thorat", role: "Publicity Head" },
       // Poster role text is partly covered by the photo ("Asst. Publicity Hea…").
-      { name: "Nivedithaa S", role: "Asst. Publicity Head" },
+      { name: "Nivedhithaa S", role: "Asst. Publicity Head" },
       { name: "Vaishnavi Talla", role: "Publicity Member" },
       // Poster prints "Shaysha"; spelling confirmed by the chapter.
       { name: "Shlaysha Gupta", role: "Publicity Member" },

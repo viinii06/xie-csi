@@ -1,5 +1,6 @@
 "use server";
 
+import { loginCopy } from "@/content/portal";
 import { isAuthConfigured, siteUrl } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -18,10 +19,10 @@ export async function sendSignInLink(_prev: SignInState, formData: FormData): Pr
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
 
   if (!looksLikeEmail(email)) {
-    return { status: "error", email, message: "Enter your full college email address." };
+    return { status: "error", email, message: loginCopy.invalidEmail };
   }
   if (!isAuthConfigured) {
-    return { status: "error", email, message: "Member sign-in isn’t set up yet. Please try again later." };
+    return { status: "error", email, message: loginCopy.notConfigured };
   }
 
   const supabase = await createSupabaseServerClient();

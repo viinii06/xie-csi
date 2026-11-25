@@ -79,6 +79,9 @@ export function MobileMenu() {
         ref={panelRef}
         data-open={open}
         inert={!open}
+        role="dialog"
+        aria-modal={open}
+        aria-label="Site menu"
         className="menu-panel px-gutter absolute inset-x-0 top-full border-b border-ink bg-paper pb-6"
       >
         <nav aria-label="Mobile">

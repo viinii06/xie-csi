@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { sendSignInLink, type SignInState } from "@/app/login/actions";
+import { loginCopy } from "@/content/portal";
 import { LoginPanel, type PanelStatus } from "./login-panel";
 
 const initial: SignInState = { status: "idle" };
@@ -27,20 +28,28 @@ export function LoginForm({ configured, notice }: { configured: boolean; notice?
       action={formAction}
       onReset={() => setDismissed(result)}
       errorMessage={current.status === "error" ? current.message : undefined}
-      sentMessage={
-        <p>
-          If <span className="break-all font-semibold">{current.status === "sent" ? current.email : email}</span> is on the
-          invite list, a sign-in link is on its way. Open it from your inbox to sign in.
-        </p>
-      }
+      sentMessage={<SentMessage email={current.status === "sent" ? current.email : email} />}
       notice={
         !configured ? (
-          <p className="text-ink-soft">Member sign-in isn’t set up yet. Please check back soon.</p>
+          <p role="status" className="text-ink-soft">{loginCopy.notConfigured}</p>
         ) : (
           notice
         )
       }
       disabled={!configured}
     />
+  );
+}
+
+// Same wording on the real and preview screens. It never confirms whether an address is
+// on the invite list, so the page can't be used to check who is a member.
+export function SentMessage({ email }: { email: string }) {
+  const { before, after } = loginCopy.sentBody(email);
+  return (
+    <p>
+      {before}
+      <span className="break-all font-semibold">{email}</span>
+      {after}
+    </p>
   );
 }

@@ -37,10 +37,12 @@ export function BrandLockup({ href = "#top", showName = true }: { href?: string;
       ))}
       {showName && (
         <>
-          <span aria-hidden className="hidden h-10 w-px bg-rule sm:block lg:hidden xl:block" />
-          <span className="hidden leading-tight sm:block lg:hidden xl:block">
+          {/* Phones: the chapter name alone. Tablets and wide desktops: name plus full title.
+              Narrow desktops hide it so the navigation fits. */}
+          <span aria-hidden className="h-8 w-px bg-rule md:h-10 lg:hidden xl:block" />
+          <span className="leading-tight lg:hidden xl:block">
             <span className="block text-[0.9375rem] font-semibold tracking-[-0.01em]">{brand.name}</span>
-            <span className="block text-[0.8125rem] text-ink-soft">{brand.shortName}</span>
+            <span className="hidden text-[0.8125rem] text-ink-soft sm:block">{brand.shortName}</span>
           </span>
         </>
       )}

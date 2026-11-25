@@ -38,10 +38,14 @@ export const memberLoginHref: string | null = "/login";
 
 export const hero = {
   headline: "Build together at XIE.",
+  // Names the chapter on the first screen, where the header lockup is compact on phones.
   supporting:
-    "Hackathons, hands-on workshops, and student-led tech at Xavier Institute of Engineering, Mumbai.",
+    "The Computer Society of India student chapter at Xavier Institute of Engineering, Mumbai. Hackathons, hands-on workshops, and tech talks, run by students.",
   primaryAction: { label: "Explore Events", href: "#events" },
-  secondaryAction: { label: "Chapter Highlights", href: "#repoforge" },
+  // Says where it goes: the past-events highlight, not a vague "highlights".
+  secondaryAction: { label: "See RepoForge 2026", href: "#repoforge" },
+  // Set to true once images.hero is a real XIE-CSI photo.
+  photoIsReal: false,
 };
 
 export const images = {
@@ -99,7 +103,7 @@ export const whatWeDo = [
   },
   {
     title: "Workshops",
-    line: "Hands-on lab sessions, like the five-day DSA Workshop in the IPL Lab.",
+    line: "Hands-on lab sessions, like the five-day DSA Workshop in the IPL Lab.",
   },
   {
     title: "Tech talks",

@@ -2,49 +2,62 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { loginCopy, type NoticeKey } from "@/content/portal";
 import { ArrowRight } from "../icons";
+import { SentMessage } from "./login-form";
 import { LoginIntro, LoginPanel, type PanelStatus } from "./login-panel";
+import { LoginNotice } from "./notice";
 import { PreviewBar } from "./preview-bar";
 import { Segmented } from "./segmented";
 
-const states: { value: PanelStatus; label: string; short?: string }[] = [
+// Panel states plus the notices the real /login shows after a redirect.
+type PreviewState = PanelStatus | "expired" | "signed-out";
+
+const states: { value: PreviewState; label: string; short?: string }[] = [
   { value: "idle", label: "Default" },
   { value: "sending", label: "Sending" },
   { value: "sent", label: "Email sent", short: "Sent" },
   { value: "error", label: "Error" },
+  { value: "expired", label: "Expired link", short: "Expired" },
+  { value: "signed-out", label: "Signed out" },
 ];
+
+const noticeFor: Partial<Record<PreviewState, NoticeKey>> = { expired: "link", "signed-out": "signed-out" };
 
 const SAMPLE_EMAIL = "yourname@student.xavier.ac.in";
 const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 // Design preview of the login screen with simulated states. Nothing is sent: submitting
-// waits briefly, and an invalid address (or one containing "error") shows the error state.
-export function LoginPreview() {
-  const [status, setStatus] = useState<PanelStatus>("idle");
+// waits briefly, then shows "sent" for any well-formed address and the error otherwise.
+// All copy comes from content/portal.ts, the same source as the real /login.
+export function LoginPreview({ initial = "idle" }: { initial?: "idle" | "signed-out" }) {
+  const [state, setState] = useState<PreviewState>(initial);
   const [email, setEmail] = useState("");
   const timer = useRef<number | null>(null);
 
   useEffect(() => () => void (timer.current && window.clearTimeout(timer.current)), []);
 
-  const forceState = (next: PanelStatus) => {
+  const status: PanelStatus = state === "expired" || state === "signed-out" ? "idle" : state;
+  const notice = noticeFor[state];
+
+  const forceState = (next: PreviewState) => {
     if (timer.current) window.clearTimeout(timer.current);
-    if (next !== "idle" && !email) setEmail(next === "error" ? "not-an-invite@example" : SAMPLE_EMAIL);
-    setStatus(next);
+    if (next === "error") setEmail("yourname@student");
+    else if ((next === "sending" || next === "sent") && !looksLikeEmail(email)) setEmail(SAMPLE_EMAIL);
+    setState(next);
   };
 
   const submit = (e: { preventDefault(): void }) => {
     e.preventDefault();
-    if (status === "sending") return;
-    setStatus("sending");
-    timer.current = window.setTimeout(() => {
-      setStatus(looksLikeEmail(email) && !/error/i.test(email) ? "sent" : "error");
-    }, 1400);
+    if (state === "sending") return;
+    setState("sending");
+    timer.current = window.setTimeout(() => setState(looksLikeEmail(email) ? "sent" : "error"), 1400);
   };
 
   return (
     <>
       <PreviewBar note="simulated, no email is sent">
-        <Segmented label="State" options={states} value={status} onChange={forceState} />
+        <Segmented label="State" options={states} value={state} onChange={forceState} />
       </PreviewBar>
 
       <main id="main" className="px-gutter flex justify-center pb-20 pt-10 md:pt-16">
@@ -55,16 +68,15 @@ export function LoginPreview() {
             email={email}
             onEmailChange={(v) => {
               setEmail(v);
-              if (status === "error") setStatus("idle");
+              if (state === "error") setState("idle");
             }}
             onSubmit={submit}
-            onReset={() => setStatus("idle")}
-            errorMessage="That address isn’t on the invite list. Check the spelling, or ask a committee member to add you."
+            onReset={() => setState("idle")}
+            errorMessage={loginCopy.invalidEmail}
+            notice={notice ? <LoginNotice kind={notice} /> : undefined}
             sentMessage={
               <>
-                <p>
-                  Sign-in link sent to <span className="break-all font-semibold">{email || SAMPLE_EMAIL}</span>.
-                </p>
+                <SentMessage email={email || SAMPLE_EMAIL} />
                 <p className="mt-2 text-[0.875rem] text-ink-soft">Simulated: nothing was sent.</p>
               </>
             }

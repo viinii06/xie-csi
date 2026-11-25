@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowRight } from "@/components/icons";
 import { LoginForm } from "@/components/portal/login-form";
+import { isNoticeKey, LoginNotice } from "@/components/portal/notice";
 import { LoginIntro } from "@/components/portal/login-panel";
 import { PortalHeader } from "@/components/portal/portal-header";
 import { getActiveMember } from "@/lib/auth/member";
@@ -12,12 +13,6 @@ import { isAuthConfigured } from "@/lib/supabase/config";
 export const metadata: Metadata = {
   title: "Member Login · XIE-CSI",
   robots: { index: false, follow: false },
-};
-
-const notices: Record<string, string> = {
-  "no-access": "That account doesn’t have member access. If you think this is wrong, ask a committee member.",
-  link: "That sign-in link has expired or was already used. Send yourself a new one.",
-  "signed-out": "You’ve signed out.",
 };
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
@@ -49,6 +44,6 @@ async function LoginWithSession({ searchParams }: { searchParams: PageProps<"/lo
   if (member) redirect("/dashboard");
 
   const key = typeof params.error === "string" ? params.error : params["signed-out"] ? "signed-out" : null;
-  const notice = key && notices[key] ? <p role="status">{notices[key]}</p> : undefined;
+  const notice = isNoticeKey(key) ? <LoginNotice kind={key} /> : undefined;
   return <LoginForm configured={isAuthConfigured} notice={notice} />;
 }

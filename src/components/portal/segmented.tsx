@@ -13,7 +13,7 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex items-center gap-1 whitespace-nowrap">
+    <div role="group" aria-label={label} className="-ml-2.5 flex flex-wrap items-center gap-1 whitespace-nowrap md:ml-0">
       <span aria-hidden className="mr-1 hidden text-ink-soft md:inline">
         {label}:
       </span>
@@ -23,7 +23,7 @@ export function Segmented<T extends string>({
           type="button"
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
-          className="min-h-9 border border-transparent px-2.5 font-medium transition-colors duration-150 hover:border-ink/30 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+          className="min-h-11 border border-transparent px-2.5 font-medium transition-colors duration-150 hover:border-ink/30 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
         >
           {o.short ? (
             <>

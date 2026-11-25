@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ArrowRight } from "@/components/icons";
 import { LoginPreview } from "@/components/portal/login-preview";
 import { PortalHeader } from "@/components/portal/portal-header";
 
 export const metadata: Metadata = { title: "Member Login (preview) · XIE-CSI" };
 
-export default function LoginPreviewPage() {
+export default function LoginPreviewPage({ searchParams }: PageProps<"/preview/login">) {
   return (
     <>
       <PortalHeader>
@@ -16,7 +17,15 @@ export default function LoginPreviewPage() {
           Back to XIE-CSI
         </Link>
       </PortalHeader>
-      <LoginPreview />
+      {/* The dashboard preview's Sign out arrives with ?state=signed-out, like the real flow. */}
+      <Suspense fallback={<LoginPreview />}>
+        <LoginPreviewWithState searchParams={searchParams} />
+      </Suspense>
     </>
   );
+}
+
+async function LoginPreviewWithState({ searchParams }: { searchParams: PageProps<"/preview/login">["searchParams"] }) {
+  const { state } = await searchParams;
+  return <LoginPreview initial={state === "signed-out" ? "signed-out" : "idle"} />;
 }

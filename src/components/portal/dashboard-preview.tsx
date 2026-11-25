@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { sampleAnnouncements, sampleMember } from "@/content/preview";
+import { longSampleAnnouncements, sampleAnnouncements, sampleMember } from "@/content/preview";
 import { AnnouncementList, AnnouncementsEmpty, AnnouncementsHeading } from "./announcements";
 import { PreviewBar } from "./preview-bar";
 import { Segmented } from "./segmented";
 
-type View = "sample" | "empty";
+type View = "sample" | "long" | "empty";
 
 // Design preview of the member dashboard with sample announcements and an empty state.
 export function DashboardPreview() {
   const [view, setView] = useState<View>("sample");
-  const items = view === "sample" ? sampleAnnouncements.slice(0, 3) : [];
+  const items = view === "sample" ? sampleAnnouncements : view === "long" ? longSampleAnnouncements : [];
 
   return (
     <>
@@ -20,6 +20,7 @@ export function DashboardPreview() {
           label="Announcements"
           options={[
             { value: "sample", label: "Sample" },
+            { value: "long", label: "Long text" },
             { value: "empty", label: "Empty" },
           ]}
           value={view}

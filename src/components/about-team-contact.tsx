@@ -5,7 +5,7 @@ import { ArrowRight, ArrowUpRight } from "./icons";
 
 export function About() {
   return (
-    <section id="about" aria-labelledby="about-title" className="px-gutter pt-16 md:pt-20 -scroll-mt-16 md:-scroll-mt-20">
+    <section id="about" aria-labelledby="about-title" className="px-gutter pt-20 md:pt-28 -scroll-mt-20 md:-scroll-mt-28">
       <div className="grid grid-cols-1 gap-y-4 border-t border-ink pt-5 lg:grid-cols-12 md:gap-x-6">
         <h2
           id="about-title"
@@ -39,8 +39,10 @@ export function Team() {
 
         <div className="lg:col-span-8">
           <h3 className="text-[0.9375rem] font-semibold">Core team</h3>
-          <RosterRows members={coreTeam.faculty} className="mt-3" />
-          <RosterRows members={coreTeam.students} className="mt-6" />
+          <h4 className="mt-4 text-[0.8125rem] font-medium text-ink-soft">Faculty</h4>
+          <RosterRows members={coreTeam.faculty} className="mt-2" />
+          <h4 className="mt-7 text-[0.8125rem] font-medium text-ink-soft">Student office-bearers</h4>
+          <RosterRows members={coreTeam.students} className="mt-2" />
 
           <h3 className="mt-12 text-[0.9375rem] font-semibold">Advisory team</h3>
           <RosterRows members={advisoryTeam} className="mt-3" compact />
@@ -51,7 +53,7 @@ export function Team() {
                 <h3 className="border-b border-rule pb-2 text-[0.9375rem] font-semibold">{team.name}</h3>
                 <ul className="mt-3 space-y-2.5">
                   {team.members.map((m) => (
-                    <li key={m.name} className="flex flex-wrap items-baseline justify-between gap-x-3">
+                    <li key={m.name} className="flex flex-wrap items-baseline justify-between gap-x-4">
                       <span className="min-w-0 break-words font-medium">{m.name}</span>
                       <span className="text-[0.875rem] text-ink-soft">{m.role}</span>
                     </li>
@@ -67,7 +69,7 @@ export function Team() {
               <p className="text-[0.875rem] text-ink-soft">Open a page to view it full size</p>
             </div>
             {/* Mobile: a swipeable row of pages. Desktop: all four pages side by side. */}
-            <ul className="poster-row -mx-[var(--gutter)] mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[var(--gutter)] pb-3 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0">
+            <ul className="poster-row -mx-[var(--gutter)] mt-4 flex snap-x snap-mandatory scroll-px-[var(--gutter)] gap-3 overflow-x-auto px-[var(--gutter)] pb-3 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0">
               {posterPages.map((page) => (
                 <li key={page.src} className="w-[68vw] max-w-[18rem] shrink-0 snap-start sm:w-auto sm:max-w-none">
                   <a
@@ -142,9 +144,10 @@ export function Contact() {
               href={contact.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="nudge link mt-4 inline-flex items-center gap-2 text-lg font-medium"
+              className="nudge link mt-3 inline-flex min-h-11 items-center gap-2 text-lg font-medium"
             >
               Open in Maps <ArrowUpRight />
+              <span className="sr-only">(opens in a new tab)</span>
             </a>
           </address>
           <div className="text-lg">
@@ -169,20 +172,20 @@ export function Contact() {
                 ))}
               </ul>
             )}
-            {contact.email ? (
-              <a href={`mailto:${contact.email}`} className="link mt-4 inline-block font-medium">
+            {/* Hidden until a chapter email is set in content/site.ts. */}
+            {contact.email && (
+              <a href={`mailto:${contact.email}`} className="link mt-4 inline-flex min-h-11 items-center font-medium">
                 {contact.email}
               </a>
-            ) : (
-              <p className="mt-4 max-w-[30ch] text-[0.9375rem] text-ink-soft">Chapter email will be added soon.</p>
             )}
             <a
               href={contact.csiNational}
               target="_blank"
               rel="noopener noreferrer"
-              className="nudge link mt-4 inline-flex items-center gap-2 font-medium"
+              className="nudge link mt-3 inline-flex min-h-11 items-center gap-2 font-medium"
             >
               Computer Society of India <ArrowUpRight />
+              <span className="sr-only">(opens in a new tab)</span>
             </a>
           </div>
         </div>

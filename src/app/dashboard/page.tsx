@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AnnouncementsEmpty, AnnouncementsHeading } from "@/components/portal/announcements";
-import { PortalHeader } from "@/components/portal/portal-header";
+import { PortalHeader, portalButton } from "@/components/portal/portal-header";
 import { requireMember } from "@/lib/auth/member";
 import { signOut } from "./actions";
 
@@ -19,10 +19,7 @@ export default function DashboardPage() {
           Upcoming events
         </Link>
         <form action={signOut}>
-          <button
-            type="submit"
-            className="inline-flex h-10 items-center border border-ink/25 px-3.5 text-[0.9375rem] font-medium transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-paper md:h-11 md:px-4"
-          >
+          <button type="submit" className={portalButton}>
             Sign out
           </button>
         </form>

@@ -6,6 +6,8 @@
   --color-paper-deep: #e9e4d8;
   --color-ink: #141311;
   --color-ink-soft: #4a4640;
+  /* Placeholder text: lighter than values, still 5:1 on paper. */
+  --color-ink-faint: #66625a;
   --color-rule: rgb(20 19 17 / 0.16);
   --color-accent: #0a3a9e;
   --color-accent-ink: #072c7a;
@@ -50,6 +52,14 @@ body {
   font-family: var(--font-sans);
   font-feature-settings: "ss01";
   text-rendering: optimizeLegibility;
+}
+
+/* Avoid single-word last lines in running copy. */
+p,
+li,
+dd,
+figcaption {
+  text-wrap: pretty;
 }
 
 ::selection {
@@ -123,13 +133,16 @@ body {
   border-color: var(--color-ink);
 }
 
-/* RepoForge photos: muted at rest, full colour on hover. */
-.rf-photo {
-  filter: grayscale(0.85) contrast(1.05);
-  transition: filter 600ms var(--ease-out-expo);
-}
-figure:hover > .rf-photo {
-  filter: none;
+/* RepoForge photos: muted at rest, full colour on hover. Touch screens have no hover,
+   so they always show full colour. */
+@media (hover: hover) and (pointer: fine) {
+  .rf-photo {
+    filter: grayscale(0.85) contrast(1.05);
+    transition: filter 600ms var(--ease-out-expo);
+  }
+  figure:hover > .rf-photo {
+    filter: none;
+  }
 }
 
 /* Arrow nudges right on hover of its parent link or button. */
@@ -207,16 +220,15 @@ figure:hover > .rf-photo {
   transition-delay: 0s;
 }
 
+/* Transform and opacity only: a per-word blur stutters on low-end Android. */
 @keyframes rise {
   from {
     transform: translateY(0.6em);
     opacity: 0;
-    filter: blur(6px);
   }
   to {
     transform: none;
     opacity: 1;
-    filter: none;
   }
 }
 

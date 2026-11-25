@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { ArrowRight } from "../icons";
 
@@ -84,7 +85,7 @@ export function LoginPanel({
           disabled={disabled}
           aria-invalid={invalid}
           aria-describedby="email-message"
-          className="field-box mt-2 block h-14 w-full border bg-paper px-4 text-lg placeholder:text-ink-soft/75 disabled:opacity-60"
+          className="field-box mt-2 block h-14 w-full border bg-paper px-4 text-lg placeholder:text-ink-faint disabled:opacity-60"
         />
 
         <p
@@ -152,7 +153,11 @@ export function LoginIntro() {
       <h1 className="text-[2.25rem] font-semibold leading-none tracking-[-0.035em] md:text-[2.75rem]">Member Login</h1>
       <p className="mt-4 max-w-[38ch] leading-snug text-ink-soft md:text-lg">
         <strong className="font-semibold text-ink">Invite-only.</strong> Sign in with the college email the committee
-        added you with. Not invited yet? Ask a committee member.
+        added you with. Not invited yet?{" "}
+        <Link href="/#team" className="link text-ink">
+          Ask a committee member
+        </Link>
+        .
       </p>
     </>
   );

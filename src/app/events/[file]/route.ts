@@ -1,4 +1,5 @@
 import { upcomingEvents } from "@/content/events";
+import { istToUtc } from "@/lib/events";
 
 // Serves /events/<slug>.ics so students can add an event to their calendar.
 
@@ -6,7 +7,8 @@ export function generateStaticParams() {
   return upcomingEvents.map((e) => ({ file: `${e.slug}.ics` }));
 }
 
-const stamp = (date: string, time: string) => `${date.replaceAll("-", "")}T${time.replace(":", "")}00`;
+// UTC timestamps (…Z) need no VTIMEZONE block, so every calendar app shows the right IST time.
+const utc = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 export async function GET(_req: Request, ctx: RouteContext<"/events/[file]">) {
   const { file } = await ctx.params;
@@ -20,9 +22,9 @@ export async function GET(_req: Request, ctx: RouteContext<"/events/[file]">) {
     "PRODID:-//XIE-CSI//Events//EN",
     "BEGIN:VEVENT",
     `UID:${event.slug}@xie-csi`,
-    `DTSTAMP:${stamp(firstDay, "00:00")}Z`,
-    `DTSTART;TZID=Asia/Kolkata:${stamp(firstDay, start)}`,
-    `DTEND;TZID=Asia/Kolkata:${stamp(firstDay, end)}`,
+    `DTSTAMP:${utc(istToUtc(firstDay, "00:00"))}`,
+    `DTSTART:${utc(istToUtc(firstDay, start))}`,
+    `DTEND:${utc(istToUtc(firstDay, end))}`,
     `RRULE:FREQ=DAILY;COUNT=${days}`,
     `SUMMARY:${event.title} (XIE-CSI)`,
     `LOCATION:${event.venue}\\, Xavier Institute of Engineering\\, Mumbai`,

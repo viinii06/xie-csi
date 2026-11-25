@@ -1,5 +1,7 @@
 // Event details shown on the homepage. Edit these values; the layout reads them as-is.
 // Leave `registrationUrl` as null until a real registration link exists.
+// An event disappears from the page on its own once its last session ends
+// (from `calendar`), so add the next one here and nothing else needs changing.
 
 export type UpcomingEvent = {
   slug: string;
@@ -50,5 +52,6 @@ export const repoForge = {
   year: "2026",
   summary: "Our flagship hackathon, run by students for students at XIE.",
   // Set to true once the photos in `site.ts` > images.repoforge are real event coverage.
+  // The photo layout adapts to however many photos are listed there (1 or more).
   photosAreReal: false,
 };

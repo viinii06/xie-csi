@@ -1,12 +1,12 @@
 import Image from "next/image";
 import { Fragment } from "react";
-import { upcomingEvents } from "@/content/events";
 import { hero, images } from "@/content/site";
+import { getScheduledEvents } from "@/lib/events";
 import { ArrowDown, ArrowRight } from "./icons";
 
-export function Hero() {
+export async function Hero() {
   const words = hero.headline.split(" ");
-  const next = upcomingEvents[0];
+  const [next] = await getScheduledEvents();
 
   return (
     <section
@@ -30,7 +30,7 @@ export function Hero() {
         </h1>
 
         <p
-          className="fade-in mt-6 max-w-[34ch] text-lg leading-snug text-ink-soft md:mt-8 md:text-[1.375rem]"
+          className="fade-in mt-5 max-w-[40ch] text-lg leading-snug text-ink-soft md:mt-8 md:text-[1.375rem]"
           style={{ "--d": "360ms" } as React.CSSProperties}
         >
           {hero.supporting}
@@ -59,16 +59,18 @@ export function Hero() {
         {next && (
           <a
             href="#events"
-            className="next-up fade-in group mt-7 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-4 border-y border-rule py-3.5 md:mt-10"
+            className="next-up fade-in group mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 border-y border-rule py-3.5 md:mt-10"
             style={{ "--d": "560ms" } as React.CSSProperties}
           >
-            <span className="text-[0.8125rem] font-semibold text-accent">Next up</span>
             <span className="min-w-0 leading-snug">
+              <span className="block text-[0.8125rem] font-semibold text-accent">
+                Next up <span className="font-normal text-ink-soft">·</span> {next.startsLabel}
+              </span>
               <span className="font-semibold">{next.title}</span>
+              {/* Separators trail the item before them, so a wrapped line never starts with "·". */}
               <span className="text-ink-soft">
-                {" "}
-                <span className="whitespace-nowrap">· {next.shortDateLabel}</span>{" "}
-                <span className="whitespace-nowrap">· {next.venue}</span>
+                <span className="whitespace-nowrap"> · {next.shortDateLabel} ·</span>{" "}
+                <span className="whitespace-nowrap">{next.venue}</span>
               </span>
             </span>
             <ArrowRight className="arrow inline-block size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -77,17 +79,25 @@ export function Hero() {
       </div>
 
       <div className="px-gutter md:col-span-12 lg:col-span-6 lg:pl-0 lg:pr-0">
-        <div className="reveal-photo relative aspect-[16/10] overflow-hidden bg-paper-deep lg:aspect-[5/4]">
-          <Image
-            src={images.hero.src}
-            alt={images.hero.alt}
-            fill
-            preload
-            sizes="(min-width: 1024px) 58vw, 100vw"
-            className="object-cover"
-            style={{ objectPosition: images.hero.focus }}
-          />
-        </div>
+        <figure>
+          <div className="reveal-photo relative aspect-[16/10] overflow-hidden bg-paper-deep lg:aspect-[5/4]">
+            <Image
+              src={images.hero.src}
+              alt={images.hero.alt}
+              fill
+              loading="eager"
+              fetchPriority="high"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+              style={{ objectPosition: images.hero.focus }}
+            />
+          </div>
+          {!hero.photoIsReal && (
+            <figcaption className="mt-2 text-[0.8125rem] text-ink-soft lg:pr-[var(--gutter)]">
+              Placeholder photo from another student hackathon. Credit in the footer.
+            </figcaption>
+          )}
+        </figure>
       </div>
     </section>
   );
