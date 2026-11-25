@@ -20,14 +20,23 @@ export async function getActiveMember(): Promise<{ member: Member | null; signed
   } = await supabase.auth.getUser();
   if (!user) return { member: null, signedIn: false };
 
+  return { member: await findActiveMember(supabase, user.id), signedIn: true };
+}
+
+// Reads the user's own membership row through a client that already holds their
+// session (RLS only returns that row). Returns null unless the membership is active.
+export async function findActiveMember(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+): Promise<Member | null> {
   const { data: row } = await supabase
     .from("members")
     .select("email, role, status")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .maybeSingle();
 
-  if (!row || row.status !== "active") return { member: null, signedIn: true };
-  return { member: { id: user.id, email: row.email, role: row.role }, signedIn: true };
+  if (!row || row.status !== "active") return null;
+  return { id: userId, email: row.email, role: row.role };
 }
 
 // Gate for member-only pages and actions. Signed-out visitors go to /login; a signed-in

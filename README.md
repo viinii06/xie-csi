@@ -33,13 +33,13 @@ Calendar files are generated at `/events/<slug>.ics` from the event data.
 
 ## Member sign-in (Supabase)
 
-Members sign in with a one-time email link. Access is invite-only: the app never creates
+Members sign in with a one-time code emailed to them (typed into `/login`). Access is invite-only: the app never creates
 accounts, and only people with an `active` row in `public.members` can open `/dashboard`.
 
 | Route | What it does |
 | --- | --- |
-| `/login` | Sends a sign-in link to invited members |
-| `/auth/confirm` | Email link callback: creates the session, then sends active members to `/dashboard` |
+| `/login` | Emails a one-time code, then verifies it and sends active members to `/dashboard` |
+| `/auth/confirm` | Fallback for emailed sign-in links (only used if the email template contains a link) |
 | `/dashboard` | Member dashboard; checks session and membership on the server |
 | `/preview/login`, `/preview/dashboard` | Design previews with simulated states (no real sign-in) |
 
@@ -54,12 +54,17 @@ accounts, and only people with an `active` row in `public.members` can open `/da
 4. **Authentication → URL Configuration:**
    - Site URL: `http://localhost:3000` (your real domain in production)
    - Redirect URLs: add `http://localhost:3000/auth/confirm`
-5. **Authentication → Email Templates → Magic Link:** replace the link with
+5. **Authentication → Email Templates → Magic Link:** make the email show the code:
    ```html
-   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Sign in to XIE-CSI</a>
+   <h2>Your XIE-CSI sign-in code</h2>
+   <p>Enter this code on the member login page:</p>
+   <p style="font-size:28px;font-weight:700;letter-spacing:6px">{{ .Token }}</p>
+   <p>It works once and expires soon. If you didn’t ask for it, ignore this email.</p>
    ```
-   This lets members open the link on any device. (The default template also works, but
-   only in the same browser that requested the link.)
+   Switch the template only once the code form is deployed; until then, keep the link
+   template (or include both the code and the link during the changeover).
+   College mail servers often filter Supabase’s built-in sender, which is also limited to a
+   few emails an hour: set up **Authentication → Emails → SMTP Settings** for real use.
 6. Restart `npm run dev` so the new environment variables load.
 
 ### Inviting a member
@@ -69,5 +74,5 @@ node --env-file=.env.local scripts/invite-member.mjs <college-email>
 ```
 
 This creates the account and an active membership row. No email is sent; the member then
-signs in at `/login`. To remove access, set their `status` to `inactive` in the
+signs in at `/login` with an emailed code. To remove access, set their `status` to `inactive` in the
 `members` table (Table editor).

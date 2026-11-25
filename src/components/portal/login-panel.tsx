@@ -22,6 +22,18 @@ type Props = {
   /** A notice above the field, e.g. "You've signed out." */
   notice?: React.ReactNode;
   disabled?: boolean;
+  /** Wording for the email step. Defaults to the sign-in link wording (used by the preview). */
+  copy?: PanelCopy;
+  /** Focus the email field on mount, e.g. after "Change email". */
+  autoFocus?: boolean;
+};
+
+export type PanelCopy = { hint: string; submit: string; sending: string };
+
+const LINK_COPY: PanelCopy = {
+  hint: "We’ll email you a one-time link. No password needed.",
+  submit: "Send sign-in link",
+  sending: "Sending link…",
 };
 
 const PLACEHOLDER = "yourname@student.xavier.ac.in";
@@ -41,6 +53,8 @@ export function LoginPanel({
   sentActions,
   notice,
   disabled,
+  copy = LINK_COPY,
+  autoFocus,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const sentRef = useRef<HTMLHeadingElement>(null);
@@ -53,11 +67,19 @@ export function LoginPanel({
     if (invalid) inputRef.current?.focus();
   }, [sent, invalid]);
 
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
+
   return (
     <div className="mt-7 grid border border-ink bg-paper md:mt-8">
       <form
         action={action}
-        onSubmit={onSubmit}
+        onSubmit={(e) => {
+          // One request at a time: ignore Enter or clicks while one is in flight.
+          if (sending) return e.preventDefault();
+          onSubmit?.(e);
+        }}
         noValidate
         aria-busy={sending}
         inert={sent}
@@ -99,7 +121,7 @@ export function LoginPanel({
               <path d="M8 4.5v4.2M8 10.6v.9" stroke="currentColor" strokeWidth="1.6" />
             </svg>
           )}
-          <span>{invalid ? errorMessage : "We’ll email you a one-time link. No password needed."}</span>
+          <span>{invalid ? errorMessage : copy.hint}</span>
         </p>
 
         <button
@@ -108,7 +130,7 @@ export function LoginPanel({
           aria-disabled={sending || disabled}
           className="btn-primary mt-3 inline-flex min-h-14 w-full items-center justify-between gap-3 bg-ink px-5 font-semibold text-paper aria-disabled:cursor-progress disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {sending ? "Sending link…" : invalid ? "Try again" : "Send sign-in link"}
+          {sending ? copy.sending : invalid ? "Try again" : copy.submit}
           {sending ? (
             <span aria-hidden className="spinner size-4 rounded-full border-2 border-paper/40 border-t-paper" />
           ) : (
@@ -116,7 +138,7 @@ export function LoginPanel({
           )}
         </button>
         <p aria-live="polite" className="sr-only">
-          {sending ? "Sending your sign-in link." : ""}
+          {sending ? copy.sending : ""}
         </p>
       </form>
 

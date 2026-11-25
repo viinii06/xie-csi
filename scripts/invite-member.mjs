@@ -4,7 +4,7 @@
 //   node --env-file=.env.local scripts/invite-member.mjs <email> [--role=member]
 //
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
-// No email is sent here: the member signs in at /login, which emails them a link.
+// No email is sent here: the member signs in at /login, which emails them a code.
 
 import { createClient } from "@supabase/supabase-js";
 
